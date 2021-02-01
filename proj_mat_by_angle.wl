@@ -90,3 +90,12 @@ ProjSortedShort[jmax_,angle_]:= Block[
 	Chop[Re[ApproximateByProjection[M]]]
 ]
 
+ProjSortedShortParallel[jmax_,angle_]:= Block[
+	{ind=IndexToRep/@Range[(jmax+1.)^2], indSorted, indexofjm0, indSortedUntiljmAre0, overlap, M},
+	overlap = Function[{r1,r2}, ProjInfinityGKrule[r1, r2, angle]];
+	indSorted = Sort[ind, #1[[2]]<#2[[2]]&];
+	indexofjm0 = Total[Range[1,jmax+1]];
+	indSortedUntiljmAre0 = indSorted[[1;;indexofjm0]];
+	M = Parallelize @ Outer[overlap, indSortedUntiljmAre0, indSortedUntiljmAre0, 1];
+	Chop[Re[ApproximateByProjection[M]]]
+]
