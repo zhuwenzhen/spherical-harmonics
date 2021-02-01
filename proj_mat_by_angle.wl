@@ -96,6 +96,18 @@ ProjSortedShortParallel[jmax_,angle_]:= Block[
 	indSorted = Sort[ind, #1[[2]]<#2[[2]]&];
 	indexofjm0 = Total[Range[1,jmax+1]];
 	indSortedUntiljmAre0 = indSorted[[1;;indexofjm0]];
+    CloseKernels[]; LaunchKernels[8];
 	M = Parallelize @ Outer[overlap, indSortedUntiljmAre0, indSortedUntiljmAre0, 1];
 	Chop[Re[ApproximateByProjection[M]]]
+]
+
+runExperiment[index_, n_, a_]:= Block[
+    {matPath, mat, fileKey},
+    angles = Table[ArcCos[1 - k / (a - 0.5)], {k, 0, a - 1}];
+    fileKey = "/home/ec2-user/SageMaker/spherical-harmonics/data/n_" <> ToString[n] <> "_a_" <>ToString[a] <> "_i_" <> ToString[index];
+    matPathM = fileKey <> ".mat";
+    matPathCsv = fileKey <> ".csv";
+    mat = ProjSortedShortParallel[n-1, angles[[index]]];
+    Export[matPathM, mat];
+    Export[matPathCsv, mat]
 ]
