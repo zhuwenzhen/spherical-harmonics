@@ -1,8 +1,9 @@
 # spherical-harmonics
 
 
-Experiment `n = 100; a = 20`
-Running on 8 core CPU instance.
+## Experiment 
+`n = 100; a = 20`
+Due to WolframEngine's licence limitation that can only launch 8 kernels, we have to run the experiment on 8 core CPU instance.
 
 |              |   Owner | Computing Index | Active(y/n/na) |
 |-------------:|--------:|----------------:|---------------:|
