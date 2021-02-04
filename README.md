@@ -9,12 +9,12 @@ Due to WolframEngine's licence limitation that can only launch 8 kernels, we hav
 |--------------:|------:|----------------:|---------------:|---------------:|
 | cpu-optimized |     w |               1 |              n |           0.07 |
 | cpu-optimized |     w |               2 |              n |             26 |
-|  8-core-cpu-1 |     w |               3 |              y |                |
+|  8-core-cpu-1 |     w |               3 |              n |           73.5 |
 |  8-core-cpu-2 |     w |               4 |              y |                |
 |  8-core-cpu-3 |     w |               5 |              y |                |
 |  8-core-cpu-4 |     w |               6 |              y |                |
 |           gnn |     w |               7 |              y |                |
-|  8-core-cpu-5 |       |                 |              y |                |
+|  8-core-cpu-5 |       |                 |                |                |
 |  8-core-cpu-6 |       |                 |                |                |
 |  8-core-cpu-7 |       |                 |                |                |
 |  8-core-cpu-8 |       |                 |                |                |
