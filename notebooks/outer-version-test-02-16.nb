@@ -1,0 +1,511 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='WolframDesktop 12.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       161,          7]
+NotebookDataLength[     18356,        501]
+NotebookOptionsPosition[     17690,        482]
+NotebookOutlinePosition[     18087,        498]
+CellTagsIndexPosition[     18044,        495]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"IndexToRep", "[", "n_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"IndexToRep", "[", "n", "]"}], "=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"j", ",", "m"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"j", "=", 
+        RowBox[{"Floor", "[", 
+         RowBox[{"Sqrt", "[", 
+          RowBox[{"n", "-", "1"}], "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"m", "=", 
+        RowBox[{"n", "-", "1", "-", 
+         RowBox[{"j", "^", "2"}], "-", "j"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"j", ",", "m"}], "}"}]}]}], "]"}]}]}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"RepToIndex", "[", 
+     RowBox[{"j_", ",", "m_"}], "]"}], ":=", 
+    RowBox[{
+     RowBox[{"RepToIndex", "[", 
+      RowBox[{"j", ",", "m"}], "]"}], "=", 
+     RowBox[{
+      RowBox[{"j", "^", "2"}], "+", "m", "+", "j", "+", "1"}]}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"IndexToRepSortedBym", "[", "n_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"IndexToRepSortedBym", "[", "n", "]"}], "=", 
+    RowBox[{"Sort", "[", 
+     RowBox[{
+      RowBox[{"IndexToRep", "[", "n", "]"}], ",", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"#1", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], "<", 
+        RowBox[{"#2", "[", 
+         RowBox[{"[", "2", "]"}], "]"}]}], "&"}]}], "]"}]}]}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ApproximateByProjection", "[", "mat_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"u", ",", "w", ",", "v"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"u", ",", "w", ",", "v"}], "}"}], "=", 
+       RowBox[{"SingularValueDecomposition", "[", "mat", "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Return", "[", 
+       RowBox[{"u", ".", 
+        RowBox[{"DiagonalMatrix", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Re", "[", "#", "]"}], ">", "0.5"}], ",", "1.", ",", 
+             "0."}], "]"}], "&"}], "/@", 
+          RowBox[{"Diagonal", "[", "w", "]"}]}], "]"}], ".", 
+        RowBox[{"ConjugateTranspose", "[", "v", "]"}]}], "]"}], ";"}]}], 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjInfinity", "[", 
+    RowBox[{"r1_", ",", "r2_", ",", 
+     RowBox[{"angle_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\[Theta]", ",", "\[Phi]"}], "}"}], ",", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Last", "[", "r1", "]"}], "\[NotEqual]", 
+        RowBox[{"Last", "[", "r2", "]"}]}], ",", "0.", ",", 
+       RowBox[{"NIntegrate", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Sin", "[", "\[Theta]", "]"}], 
+          RowBox[{"SphericalHarmonicY", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "r2", "]"}], ",", 
+            RowBox[{"Last", "[", "r2", "]"}], ",", "\[Theta]", ",", 
+            "\[Phi]"}], "]"}], 
+          RowBox[{"SphericalHarmonicY", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "r1", "]"}], ",", 
+            RowBox[{"Last", "[", "r1", "]"}], ",", "\[Theta]", ",", 
+            RowBox[{"-", "\[Phi]"}]}], "]"}]}], ",", 
+         RowBox[{"{", 
+          RowBox[{"\[Theta]", ",", "0", ",", "angle"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"\[Phi]", ",", "0", ",", 
+           RowBox[{"2", "Pi"}]}], "}"}], ",", 
+         RowBox[{"Method", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"\"\<GlobalAdaptive\>\"", ",", 
+            RowBox[{"\"\<SymbolicProcessing\>\"", "\[Rule]", "0"}]}], "}"}]}],
+          ",", 
+         RowBox[{"WorkingPrecision", "\[Rule]", "30"}]}], "]"}]}], "]"}]}], 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjInfinityExact", "[", 
+    RowBox[{"r1_", ",", "r2_", ",", 
+     RowBox[{"angle_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\[Theta]", ",", "\[Phi]"}], "}"}], ",", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Last", "[", "r1", "]"}], "\[NotEqual]", 
+        RowBox[{"Last", "[", "r2", "]"}]}], ",", "0.", ",", 
+       RowBox[{"FullSimplify", "[", 
+        RowBox[{"Integrate", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Sin", "[", "\[Theta]", "]"}], 
+           RowBox[{"SphericalHarmonicY", "[", 
+            RowBox[{
+             RowBox[{"First", "[", "r2", "]"}], ",", 
+             RowBox[{"Last", "[", "r2", "]"}], ",", "\[Theta]", ",", 
+             "\[Phi]"}], "]"}], 
+           RowBox[{"SphericalHarmonicY", "[", 
+            RowBox[{
+             RowBox[{"First", "[", "r1", "]"}], ",", 
+             RowBox[{"Last", "[", "r1", "]"}], ",", "\[Theta]", ",", 
+             RowBox[{"-", "\[Phi]"}]}], "]"}]}], ",", 
+          RowBox[{"{", 
+           RowBox[{"\[Theta]", ",", "0", ",", "angle"}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"\[Phi]", ",", "0", ",", 
+            RowBox[{"2", "Pi"}]}], "}"}]}], "]"}], "]"}]}], "]"}]}], "]"}]}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjInfinityGKrule", "[", 
+    RowBox[{"r1_", ",", "r2_", ",", 
+     RowBox[{"angle_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\[Theta]", ",", "\[Phi]"}], "}"}], ",", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Last", "[", "r1", "]"}], "\[NotEqual]", 
+        RowBox[{"Last", "[", "r2", "]"}]}], ",", "0.", ",", 
+       RowBox[{"NIntegrate", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Sin", "[", "\[Theta]", "]"}], 
+          RowBox[{"SphericalHarmonicY", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "r2", "]"}], ",", 
+            RowBox[{"Last", "[", "r2", "]"}], ",", "\[Theta]", ",", 
+            "\[Phi]"}], "]"}], 
+          RowBox[{"SphericalHarmonicY", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "r1", "]"}], ",", 
+            RowBox[{"Last", "[", "r1", "]"}], ",", "\[Theta]", ",", 
+            RowBox[{"-", "\[Phi]"}]}], "]"}]}], ",", 
+         RowBox[{"{", 
+          RowBox[{"\[Theta]", ",", "0", ",", "angle"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"\[Phi]", ",", "0", ",", 
+           RowBox[{"2", "Pi"}]}], "}"}], ",", 
+         RowBox[{"Method", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"\"\<GaussKronrodRule\>\"", ",", 
+            RowBox[{"\"\<SymbolicProcessing\>\"", "\[Rule]", "0"}]}], "}"}]}],
+          ",", 
+         RowBox[{"WorkingPrecision", "\[Rule]", "30"}]}], "]"}]}], "]"}]}], 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjInfinityC", "[", 
+    RowBox[{"r1_", ",", "r2_", ",", 
+     RowBox[{"angle_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\[Theta]", ",", "\[Phi]"}], "}"}], ",", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Last", "[", "r1", "]"}], "\[NotEqual]", 
+        RowBox[{"Last", "[", "r2", "]"}]}], ",", "0.0", ",", 
+       RowBox[{"NIntegrate", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Sin", "[", "\[Theta]", "]"}], 
+          RowBox[{"SphericalHarmonicY", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "r2", "]"}], ",", 
+            RowBox[{"Last", "[", "r2", "]"}], ",", "\[Theta]", ",", 
+            "\[Phi]"}], "]"}], 
+          RowBox[{"SphericalHarmonicY", "[", 
+           RowBox[{
+            RowBox[{"First", "[", "r1", "]"}], ",", 
+            RowBox[{"Last", "[", "r1", "]"}], ",", "\[Theta]", ",", 
+            RowBox[{"-", "\[Phi]"}]}], "]"}]}], ",", 
+         RowBox[{"{", 
+          RowBox[{"\[Theta]", ",", "0", ",", "angle"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"\[Phi]", ",", "0", ",", 
+           RowBox[{"2", "\[Pi]"}]}], "}"}], ",", 
+         RowBox[{"Method", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"\"\<GlobalAdaptive\>\"", ",", 
+            RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}], ",", 
+            RowBox[{"\"\<SingularityDepth\>\"", "\[Rule]", "Infinity"}]}], 
+           "}"}]}], ",", 
+         RowBox[{"WorkingPrecision", "\[Rule]", "30"}]}], "]"}]}], "]"}]}], 
+    "]"}]}], "\[IndentingNewLine]", "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjSorted", "[", 
+    RowBox[{"jmax_", ",", "angle_"}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"ind", "=", 
+        RowBox[{"IndexToRep", "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"jmax", "+", "1"}], ")"}], "^", "2"}], "]"}]}]}], ",", 
+       "indSorted", ",", "overlap", ",", "M"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"overlap", "=", 
+       RowBox[{"Function", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"r1", ",", "r2"}], "}"}], ",", 
+         RowBox[{"ProjInfinity", "[", 
+          RowBox[{"r1", ",", "r2", ",", "angle"}], "]"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indSorted", "=", 
+       RowBox[{"Sort", "[", 
+        RowBox[{"ind", ",", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#1", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], "<", 
+           RowBox[{"#2", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], "&"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"M", "=", 
+       RowBox[{"Outer", "[", 
+        RowBox[{"overlap", ",", "indSorted", ",", "indSorted", ",", "1"}], 
+        "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Chop", "[", 
+       RowBox[{"Re", "[", 
+        RowBox[{"ApproximateByProjection", "[", "M", "]"}], "]"}], "]"}]}]}], 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjSortedShort", "[", 
+    RowBox[{"jmax_", ",", "angle_"}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"ind", "=", 
+        RowBox[{"IndexToRep", "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"jmax", "+", "1."}], ")"}], "^", "2"}], "]"}]}]}], ",", 
+       "indSorted", ",", "indexofjm0", ",", "indSortedUntiljmAre0", ",", 
+       "overlap", ",", "M"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"overlap", "=", 
+       RowBox[{"Function", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"r1", ",", "r2"}], "}"}], ",", 
+         RowBox[{"ProjInfinityGKrule", "[", 
+          RowBox[{"r1", ",", "r2", ",", "angle"}], "]"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indSorted", "=", 
+       RowBox[{"Sort", "[", 
+        RowBox[{"ind", ",", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#1", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], "<", 
+           RowBox[{"#2", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], "&"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indexofjm0", "=", 
+       RowBox[{"Total", "[", 
+        RowBox[{"Range", "[", 
+         RowBox[{"1", ",", 
+          RowBox[{"jmax", "+", "1"}]}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indSortedUntiljmAre0", "=", 
+       RowBox[{"indSorted", "[", 
+        RowBox[{"[", 
+         RowBox[{"1", ";;", "indexofjm0"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"M", "=", 
+       RowBox[{"Outer", "[", 
+        RowBox[{
+        "overlap", ",", "indSortedUntiljmAre0", ",", "indSortedUntiljmAre0", 
+         ",", "1"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Chop", "[", 
+       RowBox[{"Re", "[", 
+        RowBox[{"ApproximateByProjection", "[", "M", "]"}], "]"}], "]"}]}]}], 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ProjSortedShortParallel", "[", 
+    RowBox[{"jmax_", ",", "angle_"}], "]"}], ":=", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"ind", "=", 
+        RowBox[{"IndexToRep", "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"jmax", "+", "1."}], ")"}], "^", "2"}], "]"}]}]}], ",", 
+       "indSorted", ",", "indexofjm0", ",", "indSortedUntiljmAre0", ",", 
+       "overlap", ",", "M"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"overlap", "=", 
+       RowBox[{"Function", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"r1", ",", "r2"}], "}"}], ",", 
+         RowBox[{"ProjInfinityGKrule", "[", 
+          RowBox[{"r1", ",", "r2", ",", "angle"}], "]"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indSorted", "=", 
+       RowBox[{"Sort", "[", 
+        RowBox[{"ind", ",", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#1", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], "<", 
+           RowBox[{"#2", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], "&"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indexofjm0", "=", 
+       RowBox[{"Total", "[", 
+        RowBox[{"Range", "[", 
+         RowBox[{"1", ",", 
+          RowBox[{"jmax", "+", "1"}]}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"indSortedUntiljmAre0", "=", 
+       RowBox[{"indSorted", "[", 
+        RowBox[{"[", 
+         RowBox[{"1", ";;", "indexofjm0"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"CloseKernels", "[", "]"}], ";", 
+      RowBox[{"LaunchKernels", "[", "8", "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"M", "=", 
+       RowBox[{"Parallelize", "@", 
+        RowBox[{"Outer", "[", 
+         RowBox[{
+         "overlap", ",", "indSortedUntiljmAre0", ",", "indSortedUntiljmAre0", 
+          ",", "1"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Chop", "[", 
+       RowBox[{"Re", "[", 
+        RowBox[{"ApproximateByProjection", "[", "M", "]"}], "]"}], "]"}]}]}], 
+    "]"}]}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"runExperiment", "[", 
+   RowBox[{"index_", ",", "n_", ",", "a_"}], "]"}], ":=", 
+  RowBox[{"Block", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+     "matPath", ",", "mat", ",", "fileKey", ",", "matPathM", ",", " ", 
+      "matPathCsv", ",", " ", "angles"}], "}"}], ",", 
+    RowBox[{
+     RowBox[{"angles", "=", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"ArcCos", "[", 
+         RowBox[{"1", "-", 
+          RowBox[{"k", "/", 
+           RowBox[{"(", 
+            RowBox[{"a", "-", "0.5"}], ")"}]}]}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"k", ",", "0", ",", 
+          RowBox[{"a", "-", "1"}]}], "}"}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"fileKey", "=", 
+      RowBox[{
+      "\"\</Users/wenzhu/Dropbox/0_Self_actualization/Physics/dev/spherical-\
+harmonics/data_test_2/n_\>\"", "<>", 
+       RowBox[{"ToString", "[", "n", "]"}], "<>", "\"\<_a_\>\"", "<>", 
+       RowBox[{"ToString", "[", "a", "]"}], "<>", "\"\<_i_\>\"", "<>", 
+       RowBox[{"ToString", "[", "index", "]"}]}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"matPathM", "=", 
+      RowBox[{"fileKey", "<>", "\"\<.mat\>\""}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"matPathCsv", "=", 
+      RowBox[{"fileKey", "<>", "\"\<.csv\>\""}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"mat", "=", 
+      RowBox[{"ProjSortedShortParallel", "[", 
+       RowBox[{
+        RowBox[{"n", "-", "1"}], ",", 
+        RowBox[{"angles", "[", 
+         RowBox[{"[", "index", "]"}], "]"}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"Export", "[", 
+      RowBox[{"matPathM", ",", "mat"}], "]"}], ";", "\[IndentingNewLine]", 
+     RowBox[{"Export", "[", 
+      RowBox[{"matPathCsv", ",", "mat"}], "]"}]}]}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.822519712064724*^9, 3.822519712066534*^9}, {
+  3.822519772298213*^9, 3.822519842836342*^9}},
+ CellLabel->"In[15]:=",ExpressionUUID->"f74ff0cb-4fb6-4a40-ba1f-ac6fbba766ae"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"n", " ", "=", " ", "20"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"a", " ", "=", " ", "10"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.822519736935622*^9, 3.8225197442778397`*^9}, {
+  3.82251986396072*^9, 3.822519865046069*^9}},
+ CellLabel->"In[27]:=",ExpressionUUID->"6bf8e599-42dc-4666-ba39-ab0fc1624d4b"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"AbsoluteTiming", "[", 
+  RowBox[{"Do", "[", 
+   RowBox[{
+    RowBox[{"runExperiment", "[", 
+     RowBox[{"i", ",", " ", "n", ",", " ", "a"}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "1", ",", "10"}], "}"}]}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.822519723862114*^9, 3.822519767727005*^9}},
+ CellLabel->"In[29]:=",ExpressionUUID->"c3d2f09c-a3bc-431d-a6b9-bf5188cceac6"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"1494.374411`", ",", "Null"}], "}"}]], "Output",
+ CellChangeTimes->{3.822521379263316*^9},
+ CellLabel->"Out[29]=",ExpressionUUID->"ce0a9df3-e5ab-4acf-9d33-ed30b9e54f18"]
+}, Open  ]]
+},
+WindowSize->{808, 911},
+WindowMargins->{{97, Automatic}, {Automatic, 43}},
+FrontEndVersion->"12.2 for Mac OS X x86 (64-bit) (December 12, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"c6f6333d-da89-4de8-8a20-0ec08d452e72"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[561, 20, 16105, 431, 1669, "Input",ExpressionUUID->"f74ff0cb-4fb6-4a40-ba1f-ac6fbba766ae"],
+Cell[16669, 453, 354, 7, 52, "Input",ExpressionUUID->"6bf8e599-42dc-4666-ba39-ab0fc1624d4b"],
+Cell[CellGroupData[{
+Cell[17048, 464, 415, 9, 30, "Input",ExpressionUUID->"c3d2f09c-a3bc-431d-a6b9-bf5188cceac6"],
+Cell[17466, 475, 208, 4, 34, "Output",ExpressionUUID->"ce0a9df3-e5ab-4acf-9d33-ed30b9e54f18"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
