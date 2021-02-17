@@ -1,113 +1,105 @@
 (* ::Package:: *)
 
-IndexToRep[n_]:= IndexToRep[n] = Module[{j, m},
+indexToRep[n_]:= indexToRep[n] = Module[{j, m},
 	j = Floor[Sqrt[n - 1]];
 	m = n - 1 - j^2 - j;
 	{j, m}
 ]
 
-RepToIndex[j_, m_]:= RepToIndex[j, m] = j^2 + m + j + 1;
+repToIndex[j_, m_]:= repToIndex[j, m] = j^2 + m + j + 1;
 
-IndexToRepSortedBym[n_]:= 
-	IndexToRepSortedBym[n] = Sort[IndexToRep[n], #1[[2]] < #2[[2]] &]
+indexToRepSortedBym[n_]:= 
+	indexToRepSortedBym[n] = Sort[indexToRep[n], #1[[2]] < #2[[2]] &]
 	
-ApproximateByProjection[mat_]:= Module[{u,w,v},
-	{u, w, v} = SingularValueDecomposition[mat];
-	Return[u . DiagonalMatrix[If[Re[#] > 0.5, 1., 0.] &/@ Diagonal[w]] . ConjugateTranspose[v]];
+approximateByProjection[mat_, n_, a_, csvFilePath_, matFilePath_]:= Block[
+	{u, w, v, res, index, fileKey},
+	{u, w, v} = SingularValueDecomposition[mat, Min[Dimensions[mat]]];
+	res = u . DiagonalMatrix[If[Re[#] > 0.5, 1., 0.] &/@ Diagonal[w]] . ConjugateTranspose[v];
+	Export[csvFilePath, res];
+	Export[matFilePath, res];
+	res
 ]
 
-ProjInfinity[r1_, r2_, angle_?NumericQ]:= Block[
-	{\[Theta], \[Phi]},
-	If[
-		Last[r1]!=Last[r2],
-		0.,
-		NIntegrate[
-			Sin[\[Theta]]SphericalHarmonicY[First[r2],Last[r2], \[Theta], \[Phi]]SphericalHarmonicY[First[r1],Last[r1], \[Theta], -\[Phi]],
-			{\[Theta],0,angle},{\[Phi],0,2Pi}, 
-			Method -> {"GlobalAdaptive", "SymbolicProcessing" -> 0},
-			WorkingPrecision -> 30
-		]
-	]
-]
+symmetrizeLowerDiag[mat_] := Transpose[LowerTriangularize[mat,-1]] + mat
 
-ProjInfinityExact[r1_, r2_, angle_?NumericQ]:= Block[
-	{\[Theta], \[Phi]},
-	If[
-		Last[r1]!=Last[r2],
-		0.,
-		FullSimplify[
-			Integrate[
-				Sin[\[Theta]]SphericalHarmonicY[First[r2],Last[r2], \[Theta], \[Phi]]SphericalHarmonicY[First[r1],Last[r1], \[Theta], -\[Phi]],
-				{\[Theta], 0, angle}, {\[Phi], 0, 2Pi}
-			]
-		]
-	]
-]
+sphNormCoeffs[l_,m_]:=Sqrt[(2*l+1)*(l-m)!/(4*Pi*(l+m)!)]
 
-ProjInfinityGKrule[r1_, r2_, angle_?NumericQ]:= Block[
-	{\[Theta], \[Phi]},
-	If[
-		Last[r1]!=Last[r2],
-		0.,
-		NIntegrate[
-			Sin[\[Theta]]SphericalHarmonicY[First[r2],Last[r2],\[Theta],\[Phi]]SphericalHarmonicY[First[r1],Last[r1],\[Theta],-\[Phi]],
-			{\[Theta], 0, angle},{\[Phi], 0, 2Pi}, 
-			Method -> {"GaussKronrodRule", "SymbolicProcessing" -> 0},
-			WorkingPrecision -> 30]
-	]
-]
-
-ProjInfinityC[r1_, r2_, angle_?NumericQ]:= Block[
-	{\[Theta], \[Phi]},
-	If[
-		Last[r1]!=Last[r2],
-		0.0,
-		NIntegrate[
-			Sin[\[Theta]]SphericalHarmonicY[First[r2],Last[r2],\[Theta],\[Phi]]SphericalHarmonicY[First[r1],Last[r1],\[Theta],-\[Phi]],
-			{\[Theta], 0, angle}, {\[Phi], 0, 2\[Pi]}, 
-			Method -> {"GlobalAdaptive", Method -> "GaussKronrodRule", "SingularityDepth" -> Infinity},
-			WorkingPrecision -> 30
-		]
-	]
+projInfinitySparseList[r1_?ListQ, r2_?ListQ, angles_]:=Block[
+	{\[Theta], \[Phi], 
+	j1 = First[r1],
+	m1 = Last[r1],
+	j2 = First[r2],
+	m2 = Last[r2], 
+	integral},
+	integral = 
+		2*Pi*sphNormCoeffs[j2, m2] * sphNormCoeffs[j1, m1]* Integrate[LegendreP[j1, m1, x]LegendreP[j2, m2, x], x];
+	Subtract @@ (integral /. x -> {1, Cos[angles]})
 ]
 
 
-ProjSorted[jmax_,angle_]:= Block[
-	{ind = IndexToRep/@ Range[(jmax+1)^2], indSorted, overlap, M},
-	overlap = Function[{r1,r2}, ProjInfinity[r1, r2, angle]];
-	indSorted = Sort[ind, #1[[2]]<#2[[2]]&];
-	M = Outer[overlap, indSorted, indSorted, 1];
-	Chop[Re[ApproximateByProjection[M]]]
-]
-
-ProjSortedShort[jmax_,angle_]:= Block[
-	{ind=IndexToRep/@Range[(jmax+1.)^2], indSorted, indexofjm0, indSortedUntiljmAre0, overlap, M},
-	overlap = Function[{r1,r2}, ProjInfinityGKrule[r1, r2, angle]];
-	indSorted = Sort[ind, #1[[2]]<#2[[2]]&];
-	indexofjm0 = Total[Range[1,jmax+1]];
+projSparseAllAngles[n_, a_, dir_]:=
+	Block[
+	{
+		ind = indexToRep/@Range[n^2],
+		angles = Table[ArcCos[1 - k / (a - 0.5)], {k, 0, a - 1}],
+		indSorted, indexofjm0, indSortedUntiljmAre0, arraysAllAngles, symmetrized,
+		indices, fileKeys, csvFilePaths, matFilePaths
+	},
+	indSorted = Sort[ind, #1[[2]] < #2[[2]]&];
+	indexofjm0 = Total[Range[1, n]];
 	indSortedUntiljmAre0 = indSorted[[1;;indexofjm0]];
-	M = Outer[overlap, indSortedUntiljmAre0, indSortedUntiljmAre0, 1];
-	Chop[Re[ApproximateByProjection[M]]]
+	arraysAllAngles = Table[
+		SparseArray[
+		{{i_,j_}:>
+		Evaluate[projInfinitySparseList[indSortedUntiljmAre0[[i]],indSortedUntiljmAre0[[j]],angles]][[k]]/;
+		i >= j &&Last[indSortedUntiljmAre0[[i]]] == Last[indSortedUntiljmAre0[[j]]]},
+		{Length[indSortedUntiljmAre0], Length[indSortedUntiljmAre0]}],
+		{k, 1, Length[angles]}
+	];
+	symmetrized = symmetrizeLowerDiag /@ arraysAllAngles;
+	indices = Range[a];
+	fileKeys = "n" <> ToString[n] <> "_a_" <>ToString[a] <> "_i_" <> ToString[#] &/@indices;
+	csvFilePaths = dir <> # <> ".csv" &/@ fileKeys;
+	matFilePaths = dir <> # <> ".mat" &/@ fileKeys;
+	Print[csvFilePaths];
+	(*mat_, n_, a_, filePath_*)
+	Return @ MapThread[approximateByProjection[#1, n, a, #2, #3]&, {symmetrized, csvFilePaths, matFilePaths}]
 ]
 
-ProjSortedShortParallel[jmax_,angle_]:= Block[
-	{ind=IndexToRep/@Range[(jmax+1.)^2], indSorted, indexofjm0, indSortedUntiljmAre0, overlap, M},
-	overlap = Function[{r1,r2}, ProjInfinityGKrule[r1, r2, angle]];
-	indSorted = Sort[ind, #1[[2]]<#2[[2]]&];
-	indexofjm0 = Total[Range[1,jmax+1]];
+
+projSparseAllAnglesParallel[n_, a_, dir_]:=
+	Block[{
+		ind = indexToRep/@Range[n^2],
+		angles = Table[ArcCos[1 - k / (a - 0.5)], {k, 0, a - 1}],
+		indSorted, indexofjm0, indSortedUntiljmAre0, arraysAllAngles, symmetrized,
+		indices, fileKeys, csvFilePaths, matFilePaths
+	},
+	indSorted = Sort[ind,#1[[2]]< #2[[2]]&];
+	indexofjm0 = Total[Range[1, n]];
 	indSortedUntiljmAre0 = indSorted[[1;;indexofjm0]];
-    CloseKernels[]; LaunchKernels[8];
-	M = Parallelize @ Outer[overlap, indSortedUntiljmAre0, indSortedUntiljmAre0, 1];
-	Chop[Re[ApproximateByProjection[M]]]
+	CloseKernels[]; LaunchKernels[];
+	arraysAllAngles = Parallelize @ Table[
+		SparseArray[{{i_,j_}:>
+		Evaluate[projInfinitySparseList[indSortedUntiljmAre0[[i]],indSortedUntiljmAre0[[j]],angles]][[k]]/;i>=j &&Last[indSortedUntiljmAre0[[i]]]==Last[indSortedUntiljmAre0[[j]]]},{Length[indSortedUntiljmAre0],Length[indSortedUntiljmAre0]}],{k,1,Length[angles]}];
+	symmetrized = symmetrizeLowerDiag /@ arraysAllAngles;
+	indices = Range[a];
+	fileKeys = "n_" <> ToString[n] <> "_a_" <>ToString[a] <> "_i_" <> ToString[#] &/@indices;
+	csvFilePaths = dir <> # <> ".csv" &/@ fileKeys;
+	matFilePaths = dir <> # <> ".mat" &/@ fileKeys;
+	(*mat_, n_, a_, filePath_*)
+	Parallelize @ MapThread[approximateByProjection[#1, n, a, #2, #3]&, {symmetrized, csvFilePaths, matFilePaths}]
 ]
 
-runExperiment[index_, n_, a_]:= Block[
-    {matPath, mat, fileKey},
-    angles = Table[ArcCos[1 - k / (a - 0.5)], {k, 0, a - 1}];
-    fileKey = "/home/ec2-user/SageMaker/spherical-harmonics/data/n_" <> ToString[n] <> "_a_" <>ToString[a] <> "_i_" <> ToString[index];
-    matPathM = fileKey <> ".mat";
-    matPathCsv = fileKey <> ".csv";
-    mat = ProjSortedShortParallel[n-1, angles[[index]]];
-    Export[matPathM, mat];
-    Export[matPathCsv, mat]
-]
+
+(* ::Section:: *)
+(*Test*)
+
+
+n = 10;
+a = 5;
+dir = NotebookDirectory[] <> "data_test/"
+
+test = AbsoluteTiming[projSparseAllAnglesParallelizeOnTableParallelizeMapThread[n, a, dir]][[1]]
+
+
+
